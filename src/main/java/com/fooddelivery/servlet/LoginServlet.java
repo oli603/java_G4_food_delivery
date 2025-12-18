@@ -101,6 +101,9 @@ public class LoginServlet extends HttpServlet {
             out.println("<p><strong>Welcome, " + user.getName() + "!</strong></p>");
             out.println("<p>Role: " + user.getRole() + "</p>");
             out.println("</div>");
+            // set user into session
+            request.getSession().setAttribute("user", user);
+            request.getSession().setAttribute("userId", user.getId());
             out.println("<a href='dashboard' class='btn'>Go to Dashboard</a>");
         } else {
             out.println("<div class='alert alert-error'>");

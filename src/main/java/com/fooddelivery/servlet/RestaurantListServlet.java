@@ -75,7 +75,7 @@ public class RestaurantListServlet extends HttpServlet {
                 out.println("</div>");
                 out.println("<div class='restaurant-card-footer'>");
                 out.println("<a href='menu-items?restaurantId=" + r.getId() + "' class='btn' style='width:48%;display:inline-block;margin-right:4%;'>View Menu</a>");
-                out.println("<a href='addme?restaurantId=" + r.getId() + "&userId=1' class='btn btn-primary' style='width:48%;display:inline-block;'>Add me</a>");
+                out.println("<a href='addme?restaurantId=" + r.getId() + "' class='btn btn-primary' style='width:48%;display:inline-block;'>Add me</a>");
                 out.println("</div>");
                 out.println("</div>");
                 imgIndex++;

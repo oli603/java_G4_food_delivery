@@ -28,7 +28,8 @@ public class AddMeServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String restaurantIdStr = request.getParameter("restaurantId");
-        String userIdStr = request.getParameter("userId");
+        Object sessionUserId = request.getSession().getAttribute("userId");
+        String userIdStr = sessionUserId != null ? String.valueOf(sessionUserId) : request.getParameter("userId");
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -39,7 +40,7 @@ public class AddMeServlet extends HttpServlet {
         }
 
         int restaurantId;
-        int userId = 1; // default
+        int userId = 1; // fallback default for legacy calls
         try {
             restaurantId = Integer.parseInt(restaurantIdStr);
             if (userIdStr != null) {
