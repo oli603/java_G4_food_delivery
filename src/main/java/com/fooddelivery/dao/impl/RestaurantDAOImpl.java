@@ -48,6 +48,23 @@ public class RestaurantDAOImpl implements RestaurantDAO {
         return null;
     }
 
+    @Override
+    public List<Restaurant> findTopRestaurants(int limit) {
+        List<Restaurant> list = new ArrayList<>();
+        String sql = "SELECT * FROM restaurants WHERE is_active = 1 ORDER BY rating DESC LIMIT ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     private Restaurant mapRow(ResultSet rs) throws SQLException {
         Restaurant r = new Restaurant();
         r.setId(rs.getInt("id"));

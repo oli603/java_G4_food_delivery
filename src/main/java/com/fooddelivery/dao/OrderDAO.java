@@ -12,5 +12,10 @@ public interface OrderDAO {
     int getTotalOrders();
     double getTotalRevenue();
     int getOrdersByStatus(String status);
+
+    /**
+     * Update the status of an order (e.g. NEW, PREPARING, DELIVERED, CANCELLED).
+     */
+    boolean updateStatus(int orderId, String status);
 }
 

@@ -74,10 +74,11 @@ public class MenuItemServlet extends HttpServlet {
             if (restaurant != null) {
                 out.println("<div class='section'>");
                 out.println("<h2>Menu for " + restaurant.getName() + "</h2>");
+                out.println("<p>View menu items for this restaurant.</p>");
                 out.println("</div>");
                 
                 List<MenuItem> items = menuItemDAO.findByRestaurantId(restaurantId);
-                displayMenuItems(out, items);
+                displayMenuItems(out, items, false);
             }
         } else {
             // Show menu items from all restaurants
@@ -86,7 +87,8 @@ public class MenuItemServlet extends HttpServlet {
                 if (!items.isEmpty()) {
                     out.println("<div class='section'>");
                     out.println("<h2>🍴 " + r.getName() + "</h2>");
-                    displayMenuItems(out, items);
+                    // In the all-restaurants view we just display items (no order form here)
+                    displayMenuItems(out, items, false);
                     out.println("</div>");
                 }
             }
@@ -98,50 +100,26 @@ public class MenuItemServlet extends HttpServlet {
         out.println("</body></html>");
     }
     
-    private void displayMenuItems(PrintWriter out, List<MenuItem> items) {
+    private void displayMenuItems(PrintWriter out, List<MenuItem> items, boolean allowSelection) {
         if (items.isEmpty()) {
             out.println("<p style='text-align:center;color:var(--white);'>No menu items available.</p>");
             return;
         }
         
-        // Actual Ethiopian food photos mapped to dishes
+        // Food images for the 6 menu items
         Map<String, String> foodImageMap = new HashMap<>();
-        foodImageMap.put("Doro Wat", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&q=85"); // Chicken stew
-        foodImageMap.put("Tibs", "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop&q=85"); // Sautéed meat
-        foodImageMap.put("Kitfo", "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop&q=85"); // Raw beef
-        foodImageMap.put("Injera", "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop&q=85"); // Ethiopian bread
-        foodImageMap.put("Shiro", "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop&q=85"); // Chickpea stew
-        foodImageMap.put("Misir Wat", "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop&q=85"); // Lentil stew
-        foodImageMap.put("Gomen", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&q=85"); // Collard greens
-        foodImageMap.put("Beyaynetu", "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop&q=85"); // Vegetarian platter
-        foodImageMap.put("Ethiopian Coffee", "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop&q=85"); // Coffee
-        foodImageMap.put("Lamb Tibs", "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Doro Alicha", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Tibs Firfir", "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Kik Alicha", "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Shiro Wat", "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Gomen Wat", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Awaze Tibs", "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Tibs Special", "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Vegetarian Combo", "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Ful", "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Fasolia", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Atkilt", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Ethiopian Tea", "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Honey Wine (Tej)", "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Tej", "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Baklava", "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Ethiopian Honey", "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Ethiopian Salad", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&q=85");
-        foodImageMap.put("Doro Wat Special", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&q=85");
+        foodImageMap.put("Doro Wat", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&q=85");
+        foodImageMap.put("Tibs", "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop&q=85");
+        foodImageMap.put("Kitfo", "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop&q=85");
+        foodImageMap.put("Beyaynetu", "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop&q=85");
+        foodImageMap.put("Shiro", "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop&q=85");
+        foodImageMap.put("Misir Wat", "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop&q=85");
         
         // Default images array for fallback
         String[] defaultFoodImages = {
             "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=300&h=200&fit=crop&q=80",
             "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&h=200&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=300&h=200&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300&h=200&fit=crop&q=80"
+            "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=300&h=200&fit=crop&q=80"
         };
         
         out.println("<div class='menu-items-list'>");
@@ -160,10 +138,18 @@ public class MenuItemServlet extends HttpServlet {
                 out.println("<span class='menu-item-category'>" + item.getCategory() + "</span>");
             }
             out.println("<div class='menu-item-footer'>");
-                out.println("<span class='menu-item-price'>" + com.fooddelivery.util.CurrencyUtil.format(item.getPrice()) + "</span>");
+            out.println("<span class='menu-item-price'>" + com.fooddelivery.util.CurrencyUtil.format(item.getPrice()) + "</span>");
             out.println("<span class='menu-item-status " + (item.isAvailable() ? "available" : "unavailable") + "'>");
             out.println(item.isAvailable() ? "✅ Available" : "❌ Unavailable");
             out.println("</span>");
+            out.println("</div>");
+            out.println("<div style='margin-top: 1rem;'>");
+            out.println("<form method='post' action='cart' style='display: inline;'>");
+            out.println("<input type='hidden' name='action' value='add'>");
+            out.println("<input type='hidden' name='itemId' value='" + item.getId() + "'>");
+            out.println("<input type='number' name='quantity' value='1' min='1' style='width: 60px; padding: 0.5rem; margin-right: 0.5rem;'>");
+            out.println("<button type='submit' class='btn' style='padding: 0.5rem 1rem;'>🛒 Add to Cart</button>");
+            out.println("</form>");
             out.println("</div>");
             out.println("</div>");
             out.println("</div>");
@@ -178,10 +164,9 @@ public class MenuItemServlet extends HttpServlet {
                "<div class='nav-brand'>🍕 Food Delivery</div>" +
                "<ul class='nav-menu'>" +
                "<li><a href='index.html'>Home</a></li>" +
-               "<li><a href='dashboard'>Dashboard</a></li>" +
                "<li><a href='restaurants'>Restaurants</a></li>" +
-               "<li><a href='menu-items'>Menu Items</a></li>" +
-               "<li><a href='orders'>Orders</a></li>" +
+               "<li><a href='cart'>Cart</a></li>" +
+               "<li><a href='my-orders'>My Orders</a></li>" +
                "<li><a href='register'>Register</a></li>" +
                "<li><a href='login'>Login</a></li>" +
                "</ul>" +

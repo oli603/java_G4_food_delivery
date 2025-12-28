@@ -1,3 +1,4 @@
+
 package com.fooddelivery.servlet;
 
 import com.fooddelivery.dao.RestaurantDAO;
@@ -22,7 +23,8 @@ public class RestaurantListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        List<Restaurant> restaurants = restaurantDAO.findAllActive();
+        // Show only a few top restaurants instead of all
+        List<Restaurant> restaurants = restaurantDAO.findTopRestaurants(6);
         
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -38,6 +40,16 @@ public class RestaurantListServlet extends HttpServlet {
         out.println(getNavigation());
         out.println("<div class='container'>");
         out.println("<h1 class='page-title'>Restaurants</h1>");
+
+        // Quick search bar for filtering restaurants on this page
+        out.println("<div class='section'>");
+        out.println("<h2>🔍 Quick Search</h2>");
+        out.println("<div class='search-container'>");
+        out.println("<input type='text' id='restaurantSearchInput' class='search-input' placeholder='Search restaurants by name or cuisine...'>");
+        out.println("<button type='button' class='btn search-btn' onclick='filterRestaurants()'>Search</button>");
+        out.println("</div>");
+        out.println("<div id='restaurantSearchInfo' class='search-results'></div>");
+        out.println("</div>");
         
         if (restaurants.isEmpty()) {
             out.println("<div class='section'>");
@@ -58,13 +70,19 @@ public class RestaurantListServlet extends HttpServlet {
             
             int imgIndex = 0;
             for (Restaurant r : restaurants) {
-                out.println("<div class='restaurant-card'>");
+                String cuisine = r.getCuisineType() != null ? r.getCuisineType() : "";
+                String name = r.getName() != null ? r.getName() : "";
+                String address = r.getAddress() != null ? r.getAddress() : "";
+                // escape single quotes for HTML attributes
+                String safeName = name.replace("'", "&#39;");
+                String safeCuisine = cuisine.replace("'", "&#39;");
+                String safeAddress = address.replace("'", "&#39;");
+                out.println("<div class='restaurant-card' data-name='" + safeName + "' data-cuisine='" + safeCuisine + "' data-address='" + safeAddress + "'>");
                 out.println("<div class='restaurant-image-wrapper'>");
                 out.println("<img src='" + restaurantImages[imgIndex % restaurantImages.length] + "' alt='" + r.getName() + "' class='restaurant-image'>");
                 out.println("<div class='restaurant-rating'>⭐ " + String.format("%.1f", r.getRating()) + "</div>");
                 out.println("</div>");
                 out.println("<div class='restaurant-card-body'>");
-                out.println("<h3>" + r.getName() + "</h3>");
                 if (r.getAddress() != null && !r.getAddress().isEmpty()) {
                     out.println("<p><strong>📍 Address:</strong> " + r.getAddress() + "</p>");
                 }
@@ -74,7 +92,8 @@ public class RestaurantListServlet extends HttpServlet {
                 out.println("<p><strong>💰 Min Order:</strong> " + com.fooddelivery.util.CurrencyUtil.format(r.getMinOrderValue()) + "</p>");
                 out.println("</div>");
                 out.println("<div class='restaurant-card-footer'>");
-                out.println("<a href='menu-items?restaurantId=" + r.getId() + "' class='btn' style='width:100%;'>View Menu</a>");
+                out.println("<a href='menu-items?restaurantId=" + r.getId() + "' class='btn' style='width:48%;'>View Menu</a>");
+                out.println("<a href='addme?restaurantId=" + r.getId() + "' class='btn btn-secondary' style='width:48%;'>Order All Dishes</a>");
                 out.println("</div>");
                 out.println("</div>");
                 imgIndex++;
@@ -94,10 +113,9 @@ public class RestaurantListServlet extends HttpServlet {
                "<div class='nav-brand'>🍕 Food Delivery</div>" +
                "<ul class='nav-menu'>" +
                "<li><a href='index.html'>Home</a></li>" +
-               "<li><a href='dashboard'>Dashboard</a></li>" +
                "<li><a href='restaurants'>Restaurants</a></li>" +
-               "<li><a href='menu-items'>Menu Items</a></li>" +
-               "<li><a href='orders'>Orders</a></li>" +
+               "<li><a href='cart'>Cart</a></li>" +
+               "<li><a href='my-orders'>My Orders</a></li>" +
                "<li><a href='register'>Register</a></li>" +
                "<li><a href='login'>Login</a></li>" +
                "</ul>" +

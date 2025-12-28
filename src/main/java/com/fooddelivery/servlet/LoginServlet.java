@@ -62,8 +62,9 @@ public class LoginServlet extends HttpServlet {
                "<div class='nav-brand'>🍕 Food Delivery</div>" +
                "<ul class='nav-menu'>" +
                "<li><a href='index.html'>Home</a></li>" +
-               "<li><a href='dashboard'>Dashboard</a></li>" +
                "<li><a href='restaurants'>Restaurants</a></li>" +
+               "<li><a href='cart'>Cart</a></li>" +
+               "<li><a href='my-orders'>My Orders</a></li>" +
                "<li><a href='register'>Register</a></li>" +
                "<li><a href='login'>Login</a></li>" +
                "</ul>" +
@@ -104,7 +105,21 @@ public class LoginServlet extends HttpServlet {
             // set user into session
             request.getSession().setAttribute("user", user);
             request.getSession().setAttribute("userId", user.getId());
-            out.println("<a href='dashboard' class='btn'>Go to Dashboard</a>");
+
+            // Role-based shortcuts
+            String role = user.getRole() != null ? user.getRole() : "CUSTOMER";
+            out.println("<div style='margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;'>");
+            if ("ADMIN".equalsIgnoreCase(role)) {
+                out.println("<a href='dashboard' class='btn'>Go to Dashboard</a>");
+                out.println("<a href='orders' class='btn btn-secondary'>Manage All Orders</a>");
+            } else if ("RESTAURANT_OWNER".equalsIgnoreCase(role)) {
+                out.println("<a href='restaurants' class='btn'>View Restaurants</a>");
+                out.println("<a href='owner-orders' class='btn btn-secondary'>View My Restaurant Orders</a>");
+            } else { // CUSTOMER or other
+                out.println("<a href='restaurants' class='btn'>Order Ethiopian Food</a>");
+                out.println("<a href='my-orders' class='btn btn-secondary'>View My Orders</a>");
+            }
+            out.println("</div>");
         } else {
             out.println("<div class='alert alert-error'>");
             out.println("<h2>❌ Login Failed</h2>");

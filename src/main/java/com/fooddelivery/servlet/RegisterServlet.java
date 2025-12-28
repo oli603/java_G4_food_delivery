@@ -57,8 +57,8 @@ public class RegisterServlet extends HttpServlet {
         out.println("<label>Role</label>");
         out.println("<select name='role'>");
         out.println("<option value='CUSTOMER'>Customer</option>");
-        out.println("<option value='RESTAURANT'>Restaurant Owner</option>");
-        out.println("<option value='DELIVERY'>Delivery Person</option>");
+        out.println("<option value='RESTAURANT_OWNER'>Restaurant Owner</option>");
+        out.println("<option value='ADMIN'>Admin</option>");
         out.println("</select>");
         out.println("</div>");
         out.println("<button type='submit' class='btn' style='width:100%;'>Register</button>");
@@ -78,8 +78,9 @@ public class RegisterServlet extends HttpServlet {
                "<div class='nav-brand'>🍕 Food Delivery</div>" +
                "<ul class='nav-menu'>" +
                "<li><a href='index.html'>Home</a></li>" +
-               "<li><a href='dashboard'>Dashboard</a></li>" +
                "<li><a href='restaurants'>Restaurants</a></li>" +
+               "<li><a href='cart'>Cart</a></li>" +
+               "<li><a href='my-orders'>My Orders</a></li>" +
                "<li><a href='register'>Register</a></li>" +
                "<li><a href='login'>Login</a></li>" +
                "</ul>" +

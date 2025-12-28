@@ -100,8 +100,7 @@ public class TestDBServlet extends HttpServlet {
             out.println("</div>");
             out.println("<script src='js/main.js'></script>");
             out.println("</body></html>");
-        }
-    }
+        }    }
     
     private String getNavigation() {
         return "<nav class='navbar'>" +
@@ -109,11 +108,11 @@ public class TestDBServlet extends HttpServlet {
                "<div class='nav-brand'>🍕 Food Delivery</div>" +
                "<ul class='nav-menu'>" +
                "<li><a href='index.html'>Home</a></li>" +
-               "<li><a href='dashboard'>Dashboard</a></li>" +
                "<li><a href='restaurants'>Restaurants</a></li>" +
-               "<li><a href='register'>Register</a></li>" +
-               "<li><a href='login'>Login</a></li>" +
-               "<li><a href='test-db'>Test DB</a></li>" +
+               "<li><a href='cart'>🛒 Cart</a></li>" +
+               "<li><a href='my-orders'>My Orders</a></li>" +
+               "<li class='nav-auth'><a href='register'>Register</a></li>" +
+               "<li class='nav-auth'><a href='login'>Login</a></li>" +
                "</ul>" +
                "</div>" +
                "</nav>";

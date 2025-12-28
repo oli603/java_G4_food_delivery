@@ -31,6 +31,25 @@ public class MenuItemDAOImpl implements MenuItemDAO {
         return list;
     }
 
+    @Override
+    public MenuItem findById(int id) {
+        String sql = "SELECT * FROM menu_items WHERE id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                MenuItem item = mapRow(rs);
+                rs.close();
+                return item;
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private MenuItem mapRow(ResultSet rs) throws SQLException {
         MenuItem item = new MenuItem();
         item.setId(rs.getInt("id"));

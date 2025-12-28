@@ -259,10 +259,11 @@ public class EthiopianDataServlet extends HttpServlet {
                "<div class='nav-brand'>🍕 Food Delivery</div>" +
                "<ul class='nav-menu'>" +
                "<li><a href='index.html'>Home</a></li>" +
-               "<li><a href='dashboard'>Dashboard</a></li>" +
                "<li><a href='restaurants'>Restaurants</a></li>" +
-               "<li><a href='menu-items'>Menu Items</a></li>" +
-               "<li><a href='orders'>Orders</a></li>" +
+               "<li><a href='cart'>Cart</a></li>" +
+               "<li><a href='my-orders'>My Orders</a></li>" +
+               "<li><a href='register'>Register</a></li>" +
+               "<li><a href='login'>Login</a></li>" +
                "</ul>" +
                "</div>" +
                "</nav>";

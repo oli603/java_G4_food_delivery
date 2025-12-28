@@ -7,6 +7,8 @@ import java.util.List;
 public interface MenuItemDAO {
 
     List<MenuItem> findByRestaurantId(int restaurantId);
+
+    MenuItem findById(int id);
 }
 
 

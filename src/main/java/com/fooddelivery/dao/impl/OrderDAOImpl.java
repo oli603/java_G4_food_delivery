@@ -84,7 +84,8 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public boolean create(Order order) {
-        String sql = "INSERT INTO orders(user_id, restaurant_id, total, status) VALUES(?,?,?,?)";
+        // Use total_amount column name as defined in create_db.sql
+        String sql = "INSERT INTO orders(user_id, restaurant_id, total_amount, status) VALUES(?,?,?,?)";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, order.getUserId());
@@ -115,7 +116,8 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public double getTotalRevenue() {
-        String sql = "SELECT SUM(total) AS revenue FROM orders WHERE status != 'CANCELLED'";
+        // Match total_amount column in the orders table
+        String sql = "SELECT SUM(total_amount) AS revenue FROM orders WHERE status != 'CANCELLED'";
         try (Connection conn = DBUtil.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -147,12 +149,27 @@ public class OrderDAOImpl implements OrderDAO {
         return 0;
     }
 
+    @Override
+    public boolean updateStatus(int orderId, String status) {
+        String sql = "UPDATE orders SET status = ? WHERE id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, orderId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private Order mapRow(ResultSet rs) throws SQLException {
         Order order = new Order();
         order.setId(rs.getInt("id"));
         order.setUserId(rs.getInt("user_id"));
         order.setRestaurantId(rs.getInt("restaurant_id"));
-        order.setTotalAmount(rs.getDouble("total"));
+        // Column name in DB is total_amount
+        order.setTotalAmount(rs.getDouble("total_amount"));
         order.setOrderStatus(rs.getString("status"));
         Timestamp ts = rs.getTimestamp("created_at");
         if (ts != null) {

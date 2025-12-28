@@ -123,7 +123,17 @@ public class OrderManagementServlet extends HttpServlet {
                 out.println("<td><span class='status-badge status-" + order.getOrderStatus().toLowerCase() + "'>" + order.getOrderStatus() + "</span></td>");
                 out.println("<td>" + (order.getCreatedAt() != null ? order.getCreatedAt().toString().substring(0, 16) : "N/A") + "</td>");
                 out.println("<td>");
-                out.println("<a href='#' class='btn btn-sm' onclick='updateOrderStatus(" + order.getId() + ")'>Update</a>");
+                out.println("<form method='post' style='display:inline-block;'>");
+                out.println("<input type='hidden' name='orderId' value='" + order.getId() + "'>");
+                out.println("<select name='status' class='status-select'>");
+                String[] statuses = {"NEW", "PREPARING", "DELIVERED", "CANCELLED"};
+                for (String st : statuses) {
+                    String sel = st.equals(order.getOrderStatus()) ? "selected" : "";
+                    out.println("<option value='" + st + "' " + sel + ">" + st + "</option>");
+                }
+                out.println("</select>");
+                out.println("<button type='submit' class='btn btn-sm'>Save</button>");
+                out.println("</form>");
                 out.println("</td>");
                 out.println("</tr>");
             }
@@ -136,14 +146,6 @@ public class OrderManagementServlet extends HttpServlet {
         
         out.println("</div>");
         out.println("<script src='js/main.js'></script>");
-        out.println("<script>");
-        out.println("function updateOrderStatus(orderId) {");
-        out.println("  const newStatus = prompt('Enter new status (NEW, PREPARING, DELIVERED, CANCELLED):');");
-        out.println("  if (newStatus) {");
-        out.println("    alert('Order ' + orderId + ' status updated to ' + newStatus);");
-        out.println("  }");
-        out.println("}");
-        out.println("</script>");
         out.println("</body></html>");
     }
     
@@ -153,15 +155,35 @@ public class OrderManagementServlet extends HttpServlet {
                "<div class='nav-brand'>🍕 Food Delivery</div>" +
                "<ul class='nav-menu'>" +
                "<li><a href='index.html'>Home</a></li>" +
-               "<li><a href='dashboard'>Dashboard</a></li>" +
                "<li><a href='restaurants'>Restaurants</a></li>" +
-               "<li><a href='menu-items'>Menu Items</a></li>" +
-               "<li><a href='orders'>Orders</a></li>" +
+               "<li><a href='cart'>Cart</a></li>" +
+               "<li><a href='my-orders'>My Orders</a></li>" +
                "<li><a href='register'>Register</a></li>" +
                "<li><a href='login'>Login</a></li>" +
                "</ul>" +
                "</div>" +
                "</nav>";
+    }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String orderIdParam = request.getParameter("orderId");
+        String status = request.getParameter("status");
+        if (orderIdParam != null && status != null && !status.isEmpty()) {
+            try {
+                int orderId = Integer.parseInt(orderIdParam);
+                orderDAO.updateStatus(orderId, status);
+            } catch (NumberFormatException ignored) {
+                // ignore invalid id
+            }
+        }
+        // Redirect back to GET to refresh the list (preserve filter if present)
+        String statusFilter = request.getParameter("statusFilter");
+        if (statusFilter != null && !statusFilter.isEmpty()) {
+            response.sendRedirect("orders?status=" + statusFilter);
+        } else {
+            response.sendRedirect("orders");
+        }
     }
 }
 

@@ -9,6 +9,8 @@ public interface RestaurantDAO {
     List<Restaurant> findAllActive();
 
     Restaurant findById(int id);
+    
+    List<Restaurant> findTopRestaurants(int limit);
 }
 
 

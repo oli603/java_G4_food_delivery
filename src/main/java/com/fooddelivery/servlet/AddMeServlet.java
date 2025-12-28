@@ -53,8 +53,24 @@ public class AddMeServlet extends HttpServlet {
 
         List<MenuItem> items = menuItemDAO.findByRestaurantId(restaurantId);
         if (items.isEmpty()) {
-            out.println("<p>No available menu items for this restaurant.</p>");
-            out.println("<a href='restaurants' class='btn'>Back</a>");
+            out.println("<!DOCTYPE html>");
+            out.println("<html lang='en'>");
+            out.println("<head>");
+            out.println("<meta charset='UTF-8'>");
+            out.println("<meta name='viewport' content='width=device-width, initial-scale=1.0'>");
+            out.println("<title>No Items - Food Delivery</title>");
+            out.println("<link rel='stylesheet' href='css/style.css'>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println(getNavigation());
+            out.println("<div class='container'>");
+            out.println("<div class='section' style='text-align: center; padding: 3rem;'>");
+            out.println("<h2>No Menu Items Available</h2>");
+            out.println("<p style='color: #f0f0f0; margin-bottom: 2rem;'>This restaurant doesn't have any menu items yet.</p>");
+            out.println("<a href='restaurants' class='btn'>Back to Restaurants</a>");
+            out.println("</div>");
+            out.println("</div>");
+            out.println("</body></html>");
             return;
         }
 
@@ -70,9 +86,14 @@ public class AddMeServlet extends HttpServlet {
 
         try {
             conn = DBUtil.getConnection();
+            
+            // Ensure orders table exists
+            ensureOrdersTableExists(conn);
+            
             conn.setAutoCommit(false);
 
-            String insertOrderSql = "INSERT INTO orders(user_id, restaurant_id, total, status) VALUES(?,?,?,?)";
+            // Match orders table schema: use total_amount column
+            String insertOrderSql = "INSERT INTO orders(user_id, restaurant_id, total_amount, status) VALUES(?,?,?,?)";
             psOrder = conn.prepareStatement(insertOrderSql, PreparedStatement.RETURN_GENERATED_KEYS);
             psOrder.setInt(1, userId);
             psOrder.setInt(2, restaurantId);
@@ -102,23 +123,115 @@ public class AddMeServlet extends HttpServlet {
 
             conn.commit();
 
-            out.println("<div class='container'><h2>✅ Order created</h2>");
-            out.println("<p>Order #" + orderId + " has been created with " + items.size() + " items. Total: " + total + "</p>");
-            out.println("<a href='orders' class='btn'>View Orders</a> <a href='restaurants' class='btn'>Back to Restaurants</a>");
+            // Enhanced UI for order confirmation
+            out.println("<!DOCTYPE html>");
+            out.println("<html lang='en'>");
+            out.println("<head>");
+            out.println("<meta charset='UTF-8'>");
+            out.println("<meta name='viewport' content='width=device-width, initial-scale=1.0'>");
+            out.println("<title>Order Confirmed - Food Delivery</title>");
+            out.println("<link rel='stylesheet' href='css/style.css'>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println(getNavigation());
+            out.println("<div class='container'>");
+            out.println("<div class='section' style='text-align: center; padding: 3rem;'>");
+            out.println("<div style='font-size: 4rem; margin-bottom: 1rem;'>✅</div>");
+            out.println("<h1 style='color: var(--primary); margin-bottom: 1rem;'>Order Created Successfully!</h1>");
+            out.println("<div style='background: var(--card-bg); padding: 2rem; border-radius: 12px; margin: 2rem auto; max-width: 500px;'>");
+            out.println("<p style='font-size: 1.2rem; margin-bottom: 1rem;'><strong>Order #" + orderId + "</strong></p>");
+            out.println("<p style='margin-bottom: 0.5rem;'>📦 <strong>" + items.size() + " items</strong> added to your order</p>");
+            out.println("<p style='font-size: 1.5rem; color: var(--primary); margin-top: 1rem;'><strong>Total: " + com.fooddelivery.util.CurrencyUtil.format(total) + "</strong></p>");
             out.println("</div>");
+            out.println("<div class='quick-actions' style='justify-content: center; margin-top: 2rem;'>");
+            out.println("<a href='my-orders' class='action-btn'><span class='action-icon'>📋</span><span>View My Orders</span></a>");
+            out.println("<a href='restaurants' class='action-btn'><span class='action-icon'>🍽️</span><span>Browse More Restaurants</span></a>");
+            out.println("</div>");
+            out.println("</div>");
+            out.println("</div>");
+            out.println("<script src='js/main.js'></script>");
+            out.println("</body></html>");
 
         } catch (SQLException e) {
             if (conn != null) {
                 try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             }
             e.printStackTrace();
-            out.println("<p style='color:red;'>Failed to create order: " + e.getMessage() + "</p>");
-            out.println("<a href='restaurants' class='btn'>Back</a>");
+            out.println("<!DOCTYPE html>");
+            out.println("<html lang='en'>");
+            out.println("<head>");
+            out.println("<meta charset='UTF-8'>");
+            out.println("<meta name='viewport' content='width=device-width, initial-scale=1.0'>");
+            out.println("<title>Order Error - Food Delivery</title>");
+            out.println("<link rel='stylesheet' href='css/style.css'>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println(getNavigation());
+            out.println("<div class='container'>");
+            out.println("<div class='section' style='text-align: center; padding: 3rem;'>");
+            out.println("<div style='font-size: 4rem; margin-bottom: 1rem;'>❌</div>");
+            out.println("<h1 style='color: #ff4444; margin-bottom: 1rem;'>Order Failed</h1>");
+            out.println("<p style='color: #f0f0f0; margin-bottom: 2rem;'>" + e.getMessage() + "</p>");
+            out.println("<a href='restaurants' class='btn'>Back to Restaurants</a>");
+            out.println("</div>");
+            out.println("</div>");
+            out.println("</body></html>");
         } finally {
             try { if (rs != null) rs.close(); } catch (SQLException ignored) {}
             try { if (psOrder != null) psOrder.close(); } catch (SQLException ignored) {}
             try { if (psItem != null) psItem.close(); } catch (SQLException ignored) {}
             try { if (conn != null) conn.setAutoCommit(true); conn.close(); } catch (SQLException ignored) {}
         }
+    }
+    
+    private void ensureOrdersTableExists(Connection conn) throws SQLException {
+        try (java.sql.Statement stmt = conn.createStatement()) {
+            // Create orders table if it doesn't exist (IF NOT EXISTS handles it safely)
+            stmt.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS orders (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "user_id INT DEFAULT NULL, " +
+                "restaurant_id INT DEFAULT NULL, " +
+                "delivery_address_id INT DEFAULT NULL, " +
+                "one_time_address TEXT, " +
+                "total_amount DECIMAL(10,2) NOT NULL CHECK (total_amount >= 0), " +
+                "status ENUM('NEW', 'CONFIRMED', 'PREPARING', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED') DEFAULT 'NEW', " +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL, " +
+                "FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE SET NULL" +
+                ") ENGINE=InnoDB"
+            );
+            
+            // Create order_items table if it doesn't exist
+            stmt.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS order_items (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "order_id INT NOT NULL, " +
+                "menu_item_id INT DEFAULT NULL, " +
+                "quantity INT NOT NULL CHECK (quantity > 0), " +
+                "unit_price DECIMAL(10,2) NOT NULL CHECK (unit_price >= 0), " +
+                "subtotal DECIMAL(10,2) GENERATED ALWAYS AS (quantity * unit_price) STORED, " +
+                "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE, " +
+                "FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE SET NULL" +
+                ") ENGINE=InnoDB"
+            );
+        }
+    }
+    
+    private String getNavigation() {
+        return "<nav class='navbar'>" +
+               "<div class='nav-container'>" +
+               "<div class='nav-brand'>🍕 Food Delivery</div>" +
+               "<ul class='nav-menu'>" +
+               "<li><a href='index.html'>Home</a></li>" +
+               "<li><a href='restaurants'>Restaurants</a></li>" +
+               "<li><a href='cart'>Cart</a></li>" +
+               "<li><a href='my-orders'>My Orders</a></li>" +
+               "<li><a href='register'>Register</a></li>" +
+               "<li><a href='login'>Login</a></li>" +
+               "</ul>" +
+               "</div>" +
+               "</nav>";
     }
 }

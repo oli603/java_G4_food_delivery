@@ -64,7 +64,7 @@ public class DashboardServlet extends HttpServlet {
         out.println("<a href='restaurants' class='action-btn'><span class='action-icon'>🍽️</span><span>Restaurants</span></a>");
         out.println("<a href='menu-items' class='action-btn'><span class='action-icon'>📋</span><span>Menu Items</span></a>");
         out.println("<a href='orders' class='action-btn'><span class='action-icon'>📦</span><span>Orders</span></a>");
-        out.println("<a href='users' class='action-btn'><span class='action-icon'>👥</span><span>Users</span></a>");
+        out.println("<a href='add-ethiopian-data' class='action-btn'><span class='action-icon'>🇪🇹</span><span>Add Ethiopian Data</span></a>");
         out.println("</div>");
         
         // Stats Cards with Images
@@ -267,11 +267,11 @@ public class DashboardServlet extends HttpServlet {
                "<div class='nav-brand'>🍕 Food Delivery</div>" +
                "<ul class='nav-menu'>" +
                "<li><a href='index.html'>Home</a></li>" +
-               "<li><a href='dashboard'>Dashboard</a></li>" +
                "<li><a href='restaurants'>Restaurants</a></li>" +
+               "<li><a href='cart'>Cart</a></li>" +
+               "<li><a href='my-orders'>My Orders</a></li>" +
                "<li><a href='register'>Register</a></li>" +
                "<li><a href='login'>Login</a></li>" +
-               "<li><a href='test-db'>Test DB</a></li>" +
                "</ul>" +
                "</div>" +
                "</nav>";
